@@ -1,5 +1,6 @@
-const core = require("@actions/core");
 const axios = require('axios');
+const { base64decode } = require('nodejs-base64');
+const core = require("@actions/core");
 
 // main() - Primary entrypoint for this action.
 async function main() {
@@ -10,8 +11,8 @@ async function main() {
         const tfc_token = core.getInput('tfc_token');
         const tfc_host = core.getInput('tfc_host');
         const variable_key = core.getInput('variable_key');
-        const variable_value_temp = new Buffer(core.getInput('variable_value'), 'base64');
-        const variable_value = variable_value_temp.toString('ascii');
+        const variable_value_temp = core.getInput('variable_value');
+        const variable_value = base64decode(variable_value_temp).replace(/\r?\n|\r/g,"");
 
         // TODO - Validate the input.
 

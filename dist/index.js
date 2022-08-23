@@ -7710,6 +7710,51 @@ function plural(ms, msAbs, n, name) {
 
 /***/ }),
 
+/***/ 44:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/**
+ * @fileoverview The ultimate shortcut to the base64 encode/decode methods.
+ * @author Anton Ivanov <anton@ivanov.hk>
+ *
+ */
+exports.__esModule = true;
+exports.base64decode = exports.base64encode = void 0;
+/**
+ * Encodes the string using base64.
+ * @param {string|number} str - The string to encode.
+ * @returns {string} The base64-encoded string.
+ */
+function base64encode(str) {
+    if (typeof str !== 'string') {
+        if (typeof str === 'number') {
+            str = str.toString();
+        }
+        else {
+            throw new Error('Text to encode must be a string or a number.');
+        }
+    }
+    return Buffer.from(str, 'utf8').toString('base64');
+}
+exports.base64encode = base64encode;
+/**
+ * Decodes the string from base64 to UTF-8.
+ * @param {string} str - The base64-encoded string.
+ */
+function base64decode(str) {
+    if (typeof str !== 'string') {
+        throw new Error('Input value must be a string.');
+    }
+    return Buffer.from(str, 'base64').toString('utf8');
+}
+exports.base64decode = base64decode;
+exports["default"] = { base64encode: base64encode, base64decode: base64decode };
+
+
+/***/ }),
+
 /***/ 1286:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -8948,8 +8993,9 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const core = __nccwpck_require__(8864);
 const axios = __nccwpck_require__(5462);
+const { base64decode } = __nccwpck_require__(44);
+const core = __nccwpck_require__(8864);
 
 // main() - Primary entrypoint for this action.
 async function main() {
@@ -8960,8 +9006,8 @@ async function main() {
         const tfc_token = core.getInput('tfc_token');
         const tfc_host = core.getInput('tfc_host');
         const variable_key = core.getInput('variable_key');
-        const variable_value_temp = new Buffer(core.getInput('variable_value'), 'base64');
-        const variable_value = variable_value_temp.toString('ascii');
+        const variable_value_temp = core.getInput('variable_value');
+        const variable_value = base64decode(variable_value_temp).replace(/\r?\n|\r/g,"");
 
         // TODO - Validate the input.
 
