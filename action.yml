@@ -1,0 +1,34 @@
+name: tfc.actions-workspace-vars
+description: GitHub Action to update Terraform Cloud Workspace Variables
+author: husa-dtg (https://github.com/husa-dtg)
+branding:
+  icon: play
+  color: blue
+inputs:
+  organization:
+    description: ""
+    required: true
+    default: ""
+  workspace:
+    description: ""
+    required: true
+    default: ""
+  tfc_token:
+    description: ""
+    required: true
+    default: ""
+  tfc_host:
+    description: ""
+    required: true
+    default: ""
+  variable_key:
+    description: ""
+    required: true
+    default: ""
+  variable_value:
+    description: ""
+    required: true
+    default: ""
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
