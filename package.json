@@ -20,10 +20,14 @@
   },
   "homepage": "https://github.com/husa-dtg/tfc.actions-workspace-vars#readme",
   "dependencies": {
+    "axios": ">=0.27.2",
+    "@actions/core": ">=1.9.0",
     "ncc": "^0.3.6",
     "ws": ">=3.3.1"
   },
   "devDependencies": {
+    "axios": ">=0.27.2",
+    "@actions/core": ">=1.9.0",
     "eslint": "^8.22.0",
     "ws": ">=3.3.1"
   }
