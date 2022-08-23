@@ -19,10 +19,10 @@ async function main() {
         const apiOptions = {
             headers: {
                 'Content-Type': 'application/vnd.api+json',
-                'Authorization': 'Bearer' + tfc_token
+                'Authorization': 'Bearer ' + tfc_token
             }
         };
-        core.debug("api_options: " + apiOptions);
+        core.debug("api_options: " + JSON.stringify(apiOptions));
 
         // Fetch Workspace ID
         const tfcWorkspaceEndpoint = "https://" + tfc_host + "/api/v2/organizations/" + organization + "/workspaces/" + workspace;
