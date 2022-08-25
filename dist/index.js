@@ -9143,9 +9143,89 @@ async function getVariableId(workspaceVariables, variableName) {
     return null;
 }
 
+// updateWorkspaceVariable() - Update the workspace variable provided with contents provided.
+async function updateWorkspaceVariable(varId, contents) {
+    // Define our HTTP client options.
+    const httpOptions = {
+        headers: {
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Bearer ' + tfc_token
+        }
+    }
+
+    // Update the existing variable.
+    const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + variableId;
+    const updateRequest = {
+        data: {
+            id: varId,
+            attributes: {
+                "category": "env",
+                "value": contents,
+                "hcl": false,
+                "sensitive": true,
+            },
+            type: "vars",
+        }
+    };
+    // Invoking Terraform Variable Patch API
+    const response = axios.patch(tfcVariableUpdateEndpoint, updateRequest, httpOptions);
+    if (response.status != 200) {
+        core.debug("updateWorkspaceVariable(): response.status: " + response.status);
+        core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
+        core.debug("updateWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
+        core.setFailed("tfc api call to update workspace variable failed");
+    }
+
+    core.debug("updateWorkspaceVariable(): response.statusText: " + response.statusText);
+}
+
+// createWorkspaceVariable() - Create the workspace variable name provided with contents provided.
+async function createWorkspaceVariable(workspaceId, varName, contents) {
+    // Define our HTTP client options.
+    const httpOptions = {
+        headers: {
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Bearer ' + tfc_token
+        }
+    }
+
+    // Update the existing variable.
+    const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + variableId;
+    const updateRequest = {
+        data: {
+            type: "vars",
+            attributes: {
+                category: "env",
+                key: varName,
+                value: contents,
+                hcl: false,
+                sensitive: true,
+            },
+            relationships: {
+                workspace: {
+                    data: {
+                        type: "workspaces",
+                        id: workspaceId,
+                    }
+                }
+            },
+        }
+    };
+    // Invoking Terraform Variable Patch API
+    const response = axios.post(tfcVariableUpdateEndpoint, updateRequest, httpOptions);
+    if (response.status != 200) {
+        core.debug("updateWorkspaceVariable(): response.status: " + response.status);
+        core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
+        core.debug("updateWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
+        core.setFailed("tfc api call to update workspace variable failed");
+    }
+
+    core.debug("updateWorkspaceVariable(): variable created: " + response.data.id);
+}
+
 // main() - Primary entrypoint for this action.
 async function main() {
-    // Validate our input; will exit action if anything is wrong.
+    // Validate our input; will fail action if anything is wrong.
     await validate_input();
 
     // Get the workspace ID from the TFC API.
@@ -9156,50 +9236,24 @@ async function main() {
     var workspaceVariables = await getWorkspaceVariables();
     core.debug("main(): workspaceVariables: "+ JSON.stringify(workspaceVariables));
 
-    core.debug("main(): google id: " + getVariableId(workspaceVariables,"GOOGLE_CREDENTIALS"));
-
     // Set the AWS credential, if present.
     // if (!!aws_access_key && !!aws_secret_key) {
 
     // }
 
     // Set the GCP credential, if present.
-    // if (!!gcp_svcacct_key) {
-
-    // }
-
-    // Shortcut while we test input.
-    return;
-
-    try {
-
-
-        const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + variableId;
-        let updateRequest = {
-            data: {
-                id: variableId,
-                attributes: {
-                    "value": variable_value,
-                    "hcl": 'false',
-                },
-                type: "vars",
-            }
-        };
-        core.debug("updateRequest:" + JSON.stringify(updateRequest));
-
-        // Invoking Terraform Variable Patch API
-        axios.patch(tfcVariableUpdateEndpoint, updateRequest, apiOptions)
-            .then((response) => {
-                core.info("update variable success:" + JSON.stringify(response.data));
-                // TODO - Do we need to do this?
-                // core.setOutput("variableId", response.data.data.id);
-            }, (error) => {
-                core.setFailed("update variable error:" + JSON.stringify(error.response.data));
-                core.setFailed(error.message);
-            });
-    } catch (error) {
-        //  Report the error back to the runner.
-        core.setFailed(error.message);
+    if (!!gcp_svcacct_key) {
+        const gcpVarName = "GOOGLE_CREDENTIALS";
+        // Grab the variable ID for the GCP creds variable.
+        const gcpVarId = await getVariableId(workspaceVariables, gcpVarName);
+        // Process accordingly depending on variable existence.
+        if (!!gcpVarId) {
+            // Variable exists; update it.
+            await updateWorkspaceVariable(gcpVarId, gcp_svcacct_key);
+        } else {
+            // Variable doesn't exist; create it.
+            await createWorkspaceVariable(workspaceId, gcpVarName, gcp_svcacct_key);
+        }
     }
 }
 
