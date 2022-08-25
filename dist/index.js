@@ -9041,28 +9041,37 @@ async function validate_input() {
     var flag = false;
 
     // Check AWS access and secret keys.
+    // If an access key is provided...
     if (!!aws_access_key) {
         if (!!aws_secret_key) {
+            // ...and a secret key is provided...check for valid formatting on access key...
             if (!aws_access_key.match(/(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])/)) {
                 core.setFailed("aws_access_key invalid");
             }
+            // ...and valid formatting on secret key...
             if (!aws_secret_key.match(/(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])/)) {
                 core.setFailed("aws_secret_key invalid");
             }
+            // Valid formatting; set flag.
             flag = true;
         } else {
+            // ...no secret key, fail.
             core.setFailed("aws_access_key provided without an aws_secret_key");
         }
     } else if (!!aws_secret_key) {
+        // ...no access key, fail.
         core.setFailed("aws_secret_key provided without an aws_access_key");
     }
 
-    // TODO - Validate the GCP key input.
     // Check the GCP key.
+    // If a key is provided...
     if (!!gcp_svcacct_key) {
+        // ...check if valid formatting...
         if (!gcp_svcacct_key.match(/^(?:[A-Za-z\d+/]{4})*(?:[A-Za-z\d+/]{3}=|[A-Za-z\d+/]{2}==)?$/)) {
+            // ...invalid formatting, fail.
             core.setFailed("gcp_svcacct_key set but invalid format");
         } else {
+            // Valid formatting; set flag.
             flag = true;
         }
     }
@@ -9071,8 +9080,6 @@ async function validate_input() {
     if (!flag) {
         core.setFailed("no valid credential provided to be put into the workspace");
     }
-
-    return
 }
 
 // main() - Primary entrypoint for this action.
@@ -9080,6 +9087,9 @@ async function main() {
     // Validate our input; will exit action if anything is wrong.
     await validate_input();
 
+    // Shortcut while we test input.
+    return;
+    
     try {
         // Define our API HTTP client options.
         const apiOptions = {
