@@ -9144,7 +9144,7 @@ async function updateWorkspaceVariable(varId, contents) {
         }
     };
     // Invoking Terraform Variable Patch API
-    const response = axios.patch(tfcVariableUpdateEndpoint, updateRequest);
+    const response = await axios.patch(tfcVariableUpdateEndpoint, updateRequest);
     if (response.status != 200) {
         core.debug("updateWorkspaceVariable(): response.status: " + response.status);
         core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
@@ -9180,7 +9180,7 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
         }
     };
     // Invoking Terraform Variable Patch API
-    const response = axios.post(tfcVariableUpdateEndpoint, updateRequest);
+    const response = await axios.post(tfcVariableUpdateEndpoint, updateRequest);
     if (response.status != 200) {
         core.debug("updateWorkspaceVariable(): response.status: " + response.status);
         core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
