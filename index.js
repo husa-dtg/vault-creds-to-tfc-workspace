@@ -138,15 +138,17 @@ async function updateWorkspaceVariable(varId, contents) {
     const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + varId;
     const updateRequest = {
         data: {
-            id: varId,
-            attributes: {
-                "category": "env",
-                "value": contents,
-                "hcl": false,
-                "sensitive": true,
+            data: {
+                id: varId,
+                attributes: {
+                    "category": "env",
+                    "value": contents,
+                    "hcl": false,
+                    "sensitive": true,
+                },
+                type: "vars",
             },
-            type: "vars",
-        }
+        },
     };
     // Invoking Terraform Variable Patch API
     const response = await axios.patch(tfcVariableUpdateEndpoint, updateRequest);
@@ -166,23 +168,25 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
     const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars";
     const updateRequest = {
         data: {
-            type: "vars",
-            attributes: {
-                category: "env",
-                key: varName,
-                value: contents,
-                hcl: false,
-                sensitive: true,
+            data: {
+                type: "vars",
+                attributes: {
+                    category: "env",
+                    key: varName,
+                    value: contents,
+                    hcl: false,
+                    sensitive: true,
+                },
+                relationships: {
+                    workspace: {
+                        data: {
+                            type: "workspaces",
+                            id: workspaceId,
+                        },
+                    },
+                },
             },
-            relationships: {
-                workspace: {
-                    data: {
-                        type: "workspaces",
-                        id: workspaceId,
-                    }
-                }
-            },
-        }
+        },
     };
     // Invoking Terraform Variable Patch API
     const response = await axios.post(tfcVariableUpdateEndpoint, updateRequest);
@@ -201,6 +205,7 @@ async function main() {
     // Validate our input; will fail action if anything is wrong.
     await validate_input();
 
+    axios.defaults.headers.common['Content-Type'] = 'application/vnd.api+json';
     axios.defaults.headers.get['Content-Type'] = 'application/vnd.api+json';
     axios.defaults.headers.patch['Content-Type'] = 'application/vnd.api+json';
     axios.defaults.headers.post['Content-Type'] = 'application/vnd.api+json';
