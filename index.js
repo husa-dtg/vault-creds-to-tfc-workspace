@@ -98,8 +98,54 @@ async function getWorkspaceId() {
         core.setFailed("tfc api call for workspace id failed");
     }
 
+    // Return the Workspace ID.
     core.debug("getWorkspaceId(): return: " + response.data.data.id);
     return response.data.data.id;
+}
+
+// getWorkspaceVariables() - Get the variable details for the workspace.
+async function getWorkspaceVariables() {
+    // Define our HTTP client options.
+    const httpOptions = {
+        headers: {
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Bearer ' + tfc_token
+        }
+    }
+
+    // Fetch the variables in the workspace.
+    const tfcListVariablesEndpoint = "https://" + tfc_host + "/api/v2/vars/?filter[organization][name]=" + organization + "&filter[workspace][name]=" + workspace;
+    const response = await axios.get(tfcListVariablesEndpoint, httpOptions);
+    if (response.status != 200) {
+        core.debug("getWorkspaceVariables(): response.status: " + response.status);
+        core.debug("getWorkspaceVariables(): response.headers: " + JSON.stringify(response.headers));
+        core.debug("getWorkspaceVariables(): response.data: " + JSON.stringify(response.data));
+        core.setFailed("tfc api call for workspace variable details failed");
+    }
+
+    // Set null as default.
+    let variableIds = [];
+
+    // Iterate through variables grabbings names and IDs.
+    for (let variable of response.data.data) {
+        variableIds.push({ 'name': variable.attributes.key, 'id': variable.id });
+    }
+
+    // Return the Variable ID or null.
+    core.debug("getWorkspaceVariables(): return: " + JSON.stringify(variableIds));
+    return variableIds;
+}
+
+// getVariableId() - Return the variable ID or null for the requested variable name.
+async function getVariableId(workspaceVariables, variableName) {
+    for (let variable of workspaceVariables) {
+        if (variable.name === variableName) {
+            core.debug("getVariableId(): return: " + JSON.stringify(variable.id));
+            return variable.id;
+        }
+    }
+    core.debug("getVariableId(): return: null");
+    return null;
 }
 
 // main() - Primary entrypoint for this action.
@@ -108,27 +154,30 @@ async function main() {
     await validate_input();
 
     // Get the workspace ID from the TFC API.
-    var workspaceId = getWorkspaceId();
+    var workspaceId = await getWorkspaceId();
     core.debug("main(): workspaceId: " + workspaceId);
+
+    // Get the details for the variables in the workspace.
+    var workspaceVariables = await getWorkspaceVariables();
+    core.debug("main(): workspaceVariables: "+ JSON.stringify(workspaceVariables));
+
+    core.debug("main(): google id: " + getVariableId(workspaceVariables,"GOOGLE_CREDENTIALS"));
+
+    // Set the AWS credential, if present.
+    // if (!!aws_access_key && !!aws_secret_key) {
+
+    // }
+
+    // Set the GCP credential, if present.
+    // if (!!gcp_svcacct_key) {
+
+    // }
 
     // Shortcut while we test input.
     return;
 
     try {
 
-        // Fetch the variable ID
-        const tfcListVariablesEndpoint = "https://" + tfc_host + "/api/v2/vars/?filter[organization][name]=" + organization + "&filter[workspace][name]=" + workspace;
-        response = await axios.get(tfcListVariablesEndpoint, apiOptions);
-        const workspaceVariables = response.data.data;
-        let variableId = null;
-        for (let variable of workspaceVariables) {
-            if (variable.attributes.key === variable_key) {
-                variableId = variable.id;
-            }
-        }
-        if (variableId == null) {
-            core.setFailed('variable could not be found in workspace');
-        }
 
         const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + variableId;
         let updateRequest = {
