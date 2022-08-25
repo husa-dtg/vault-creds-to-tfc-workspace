@@ -8994,23 +8994,93 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const axios = __nccwpck_require__(5462);
-const { base64decode } = __nccwpck_require__(44);
+const { base64decode, base64encode } = __nccwpck_require__(44);
 const core = __nccwpck_require__(8864);
+
+// VAULT SECRET REGEX PATTERNS
+// 
+// AWS
+// ACCESS_KEY_ID: (?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])
+// SECRET_KEY_ID: (?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])
+// 
+// GCP
+// PRIVATE_KEY: ^(?:[A-Za-z\d+/]{4})*(?:[A-Za-z\d+/]{3}=|[A-Za-z\d+/]{2}==)?$
+
+// Get input from the workflow step.
+const tfc_host = core.getInput('tfc_host');
+const tfc_token = core.getInput('tfc_token') || process.env.TFC_TOKEN || process.env.tfc_token;
+const organization = core.getInput('organization');
+const workspace = core.getInput('workspace');
+const aws_access_key = core.getInput('aws_access_key');
+const aws_secret_key = core.getInput('aws_secret_key');
+const gcp_svcacct_key = core.getInput('gcp_svcacct_key');
+
+// validate_input() - Check our action inputs for existence and valid contents.
+async function validate_input() {
+    // Check tfc_host.
+    if (!tfc_host) {
+        core.setFailed("tfc_host not provided");
+    }
+
+    // Check tfc_token.
+    if (!tfc_token) {
+        core.setFailed("tfc_token not provided");
+    }
+
+    // Check organization.
+    if (!organization) {
+        core.setFailed("organization not provided");
+    }
+
+    // Check workspace.
+    if (!workspace) {
+        core.setFailed("workspace not provided");
+    }
+
+    // Set a flag to ensure we have at lease one credential provided.
+    var flag = false;
+
+    // Check AWS access and secret keys.
+    if (!!aws_access_key) {
+        if (!!aws_secret_key) {
+            if (!aws_access_key.match(/(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])/)) {
+                core.setFailed("aws_access_key invalid");
+            }
+            if (!aws_secret_key.match(/(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])/)) {
+                core.setFailed("aws_secret_key invalid");
+            }
+            flag = true;
+        } else {
+            core.setFailed("aws_access_key provided without an aws_secret_key");
+        }
+    } else if (!!aws_secret_key) {
+        core.setFailed("aws_secret_key provided without an aws_access_key");
+    }
+
+    // TODO - Validate the GCP key input.
+    // Check the GCP key.
+    if (!!gcp_svcacct_key) {
+        if (!gcp_svcacct_key.match(/^(?:[A-Za-z\d+/]{4})*(?:[A-Za-z\d+/]{3}=|[A-Za-z\d+/]{2}==)?$/)) {
+            core.setFailed("gcp_svcacct_key set but invalid format");
+        } else {
+            flag = true;
+        }
+    }
+
+    // Do we have at least one credential to set?
+    if (!flag) {
+        core.setFailed("no valid credential provided to be put into the workspace");
+    }
+
+    return
+}
 
 // main() - Primary entrypoint for this action.
 async function main() {
+    // Validate our input; will exit action if anything is wrong.
+    await validate_input();
+
     try {
-        // Get input from the workflow.
-        const organization = core.getInput('organization');
-        const workspace = core.getInput('workspace');
-        const tfc_token = core.getInput('tfc_token');
-        const tfc_host = core.getInput('tfc_host');
-        const variable_key = core.getInput('variable_key');
-        const variable_value_temp = core.getInput('variable_value');
-        const variable_value = base64decode(variable_value_temp).replace(/\r?\n|\r/g,"");
-
-        // TODO - Validate the input.
-
         // Define our API HTTP client options.
         const apiOptions = {
             headers: {
@@ -9071,6 +9141,7 @@ async function main() {
 
 // Run the action.
 main();
+
 })();
 
 module.exports = __webpack_exports__;

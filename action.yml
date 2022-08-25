@@ -5,29 +5,33 @@ branding:
   icon: play
   color: blue
 inputs:
+  tfc_host:
+    description: The TFC (or TFE) hostname.
+    required: false
+    default: app.terraform.io
+  tfc_token:
+    description: The token to use to authenticate with Terraform Cloud.
+    required: false
+    default: ""
   organization:
-    description: ""
+    description: The organization in TFC containing the target workspace.
     required: true
     default: ""
   workspace:
-    description: ""
+    description: The target workspace to receive the credentials.
     required: true
     default: ""
-  tfc_token:
-    description: ""
-    required: true
+  aws_access_key:
+    description: AWS Access Key ID from Vault (assumes Vault standard formatting).
+    required: false
     default: ""
-  tfc_host:
-    description: ""
-    required: true
+  aws_secret_key:
+    description: AWS Secret Key ID from Vault (assumes Vault standard formatting).
+    required: false
     default: ""
-  variable_key:
-    description: ""
-    required: true
-    default: ""
-  variable_value:
-    description: ""
-    required: true
+  gcp_svcacct_key:
+    description: GCP service account key from Vault (assumes Vault standard formatting).
+    required: false
     default: ""
 runs:
   using: 'node16'
