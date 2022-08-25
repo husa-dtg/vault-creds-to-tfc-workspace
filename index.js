@@ -201,7 +201,9 @@ async function main() {
     // Validate our input; will fail action if anything is wrong.
     await validate_input();
 
-    axios.defaults.headers.common['Content-Type'] = 'application/vnd.api+json';
+    axios.defaults.headers.get['Content-Type'] = 'application/vnd.api+json';
+    axios.defaults.headers.patch['Content-Type'] = 'application/vnd.api+json';
+    axios.defaults.headers.post['Content-Type'] = 'application/vnd.api+json';
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + tfc_token;
 
     // Get the workspace ID from the TFC API.
