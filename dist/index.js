@@ -9190,7 +9190,7 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
     }
 
     // Update the existing variable.
-    const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + variableId;
+    const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars";
     const updateRequest = {
         data: {
             type: "vars",
