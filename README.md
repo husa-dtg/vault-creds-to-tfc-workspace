@@ -46,13 +46,13 @@ Add a step using this action to your workflow after you've retrieved your creden
 
 ``` yaml
 - name: Setup workspace credentials.
-uses: husa-dtg/vault-creds-to-tfc-workspace@v1.0.0
-with:
-    tfc_host: app.terraform.io # This is the default; optional.
-    tfc_token: ${{ steps.STEP_NAME.outputs.TFC_CREDS_NAME }} 
-    organization: ORGANIZATION_NAME
-    workspace: WORKSPACE_NAME
-    aws_access_key: ${{ steps.STEP_NAME.outputs.AWS_ACCESS_KEY_NAME }}
-    aws_secret_key: ${{ steps.STEP_NAME.outputs.AWS_SECRET_KEY_NAME }}
-    gcp_svcacct_key: ${{ steps.STEP_NAME.outputs.GCP_CREDS_NAME }}
+  uses: husa-dtg/vault-creds-to-tfc-workspace@v1.0.0
+  with:
+      tfc_host: app.terraform.io # This is the default; optional.
+      tfc_token: ${{ steps.STEP_NAME.outputs.TFC_CREDS_NAME }} 
+      organization: ORGANIZATION_NAME
+      workspace: WORKSPACE_NAME
+      aws_access_key: ${{ steps.STEP_NAME.outputs.AWS_ACCESS_KEY_NAME }}
+      aws_secret_key: ${{ steps.STEP_NAME.outputs.AWS_SECRET_KEY_NAME }}
+      gcp_svcacct_key: ${{ steps.STEP_NAME.outputs.GCP_CREDS_NAME }}
 ```
