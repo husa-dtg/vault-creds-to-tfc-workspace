@@ -9085,7 +9085,7 @@ async function getWorkspaceId() {
 
     // Fetch Workspace ID
     const tfcWorkspaceEndpoint = "https://" + tfc_host + "/api/v2/organizations/" + organization + "/workspaces/" + workspace;
-    const response = await axios.get(tfcWorkspaceEndpoint, apiOptions);
+    const response = await axios.get(tfcWorkspaceEndpoint, httpOptions);
     if (response.status != 200) {
         core.debug("getWorkspaceId(): response.status: " + response.status);
         core.debug("getWorkspaceId(): response.headers: " + JSON.stringify(response.headers));
