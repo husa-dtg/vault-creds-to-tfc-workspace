@@ -8993,18 +8993,9 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
+const core = __nccwpck_require__(8864);
 const axios = __nccwpck_require__(5462);
 const { base64decode, base64encode } = __nccwpck_require__(44);
-const core = __nccwpck_require__(8864);
-
-// VAULT SECRET REGEX PATTERNS
-// 
-// AWS
-// ACCESS_KEY_ID: (?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])
-// SECRET_KEY_ID: (?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])
-// 
-// GCP
-// PRIVATE_KEY: ^(?:[A-Za-z\d+/]{4})*(?:[A-Za-z\d+/]{3}=|[A-Za-z\d+/]{2}==)?$
 
 // Get input from the workflow step.
 const tfc_host = core.getInput('tfc_host');
@@ -9082,29 +9073,43 @@ async function validate_input() {
     }
 }
 
+// getWorkspaceId() - Get the workspace ID based on provided workspace name.
+async function getWorkspaceId() {
+    // Define our HTTP client options.
+    const httpOptions = {
+        headers: {
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Bearer ' + tfc_token
+        }
+    }
+
+    // Fetch Workspace ID
+    const tfcWorkspaceEndpoint = "https://" + tfc_host + "/api/v2/organizations/" + organization + "/workspaces/" + workspace;
+    const response = await axios.get(tfcWorkspaceEndpoint, apiOptions);
+    if (response.status != 200) {
+        core.debug("getWorkspaceId(): response.status: " + response.status);
+        core.debug("getWorkspaceId(): response.headers: " + JSON.stringify(response.headers));
+        core.debug("getWorkspaceId(): response.data: " + JSON.stringify(response.data));
+        core.setFailed("tfc api call for workspace id failed");
+    }
+
+    core.debug("getWorkspaceId(): return: " + response.data.data.id);
+    return response.data.data.id;
+}
+
 // main() - Primary entrypoint for this action.
 async function main() {
     // Validate our input; will exit action if anything is wrong.
     await validate_input();
 
+    // Get the workspace ID from the TFC API.
+    var workspaceId = getWorkspaceId();
+    core.debug("main(): workspaceId: " + workspaceId);
+
     // Shortcut while we test input.
     return;
-    
-    try {
-        // Define our API HTTP client options.
-        const apiOptions = {
-            headers: {
-                'Content-Type': 'application/vnd.api+json',
-                'Authorization': 'Bearer ' + tfc_token
-            }
-        };
-        core.debug("api_options: " + JSON.stringify(apiOptions));
 
-        // Fetch Workspace ID
-        const tfcWorkspaceEndpoint = "https://" + tfc_host + "/api/v2/organizations/" + organization + "/workspaces/" + workspace;
-        var response = await axios.get(tfcWorkspaceEndpoint, apiOptions);
-        const workspaceId = response.data.data.id;
-        core.debug("workspaceId: " + workspaceId);
+    try {
 
         // Fetch the variable ID
         const tfcListVariablesEndpoint = "https://" + tfc_host + "/api/v2/vars/?filter[organization][name]=" + organization + "&filter[workspace][name]=" + workspace;
