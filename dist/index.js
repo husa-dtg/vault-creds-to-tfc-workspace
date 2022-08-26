@@ -9286,11 +9286,11 @@ async function main() {
         if (!!gcpVarId) {
             // Variable exists; update it.
             core.debug("main(): gcp workspace variable exists: updating");
-            await updateWorkspaceVariable(gcpVarId, gcp_svcacct_key);
+            await updateWorkspaceVariable(gcpVarId, base64decode(gcp_svcacct_key).replace(/\r?\n|\r/g,""));
         } else {
             // Variable doesn't exist; create it.
             core.debug("main(): gcp workspace variable does not exist: creating");
-            await createWorkspaceVariable(workspaceId, gcpVarName, gcp_svcacct_key);
+            await createWorkspaceVariable(workspaceId, gcpVarName, base64decode(gcp_svcacct_key).replace(/\r?\n|\r/g,""));
         }
     }
 
