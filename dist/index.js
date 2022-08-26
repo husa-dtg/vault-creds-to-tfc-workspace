@@ -9213,7 +9213,6 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
         core.setFailed("tfc api call to create workspace variable failed (createWorkspaceVariable)");
     }
 
-    // TODO - Figure out why it returns undefined when creating variable.
     core.debug("createWorkspaceVariable(): variable created: " + response.data.data.id);
     core.debug("createWorkspaceVariable(): return");
 }
@@ -9235,9 +9234,43 @@ async function main() {
     core.debug("main(): workspaceVariables: "+ JSON.stringify(workspaceVariables));
 
     // Set the AWS credential, if present.
-    // if (!!aws_access_key && !!aws_secret_key) {
+    if (!!aws_access_key && !!aws_secret_key) {
+        core.debug("main(): setting aws workspace variables");
 
-    // }
+        const awsAccessVarName = "AWS_ACCESS_KEY_ID";
+
+        // Grab the variable ID for the GCP credentials variable.
+        const awsAccessVarId = await getVariableId(workspaceVariables, awsAccessVarName);
+        core.debug("main(): awsAccessVarId: " + awsAccessVarId);
+
+        // Process accordingly depending on variable existence.
+        if (!!awsAccessVarId) {
+            // Variable exists; update it.
+            core.debug("main(): aws access key workspace variable exists: updating");
+            await updateWorkspaceVariable(awsAccessVarId, aws_access_key);
+        } else {
+            // Variable doesn't exist; create it.
+            core.debug("main(): aws access key workspace variable does not exist: creating");
+            await createWorkspaceVariable(workspaceId, awsAccessVarName, aws_access_key);
+        }
+        
+        const awsSecretVarName = "AWS_SECRET_ACCESS_KEY";
+
+        // Grab the variable ID for the GCP credentials variable.
+        const awsSecretVarId = await getVariableId(workspaceVariables, awsSecretVarName);
+        core.debug("main(): awsSecretVarId: " + awsSecretVarId);
+
+        // Process accordingly depending on variable existence.
+        if (!!awsSecretVarId) {
+            // Variable exists; update it.
+            core.debug("main(): aws secret key workspace variable exists: updating");
+            await updateWorkspaceVariable(awsSecretVarId, aws_secret_key);
+        } else {
+            // Variable doesn't exist; create it.
+            core.debug("main(): aws secret key workspace variable does not exist: creating");
+            await createWorkspaceVariable(workspaceId, awsSecretVarName, aws_secret_key);
+        }
+    }
 
     // Set the GCP credential, if present.
     if (!!gcp_svcacct_key) {
