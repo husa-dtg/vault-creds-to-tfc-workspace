@@ -218,7 +218,8 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
         core.setFailed("tfc api call to create workspace variable failed (createWorkspaceVariable)");
     }
 
-    core.debug("createWorkspaceVariable(): variable created: " + response.data.id);
+    // TODO - Figure out why it returns undefined when creating variable.
+    core.debug("createWorkspaceVariable(): variable created: " + response.data.data.id);
     core.debug("createWorkspaceVariable(): return");
 }
 
