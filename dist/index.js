@@ -9006,6 +9006,7 @@ const aws_access_key = core.getInput('aws_access_key');
 const aws_secret_key = core.getInput('aws_secret_key');
 const gcp_svcacct_key = core.getInput('gcp_svcacct_key');
 
+// Global header definitions for axios requests.
 const httpOptions = {
     headers: {
         "Content-Type": "application/vnd.api+json",
@@ -9016,24 +9017,26 @@ const httpOptions = {
 
 // validate_input() - Check our action inputs for existence and valid contents.
 async function validate_input() {
+    core.debug("validate_input(): begin");
+
     // Check tfc_host.
     if (!tfc_host) {
-        core.setFailed("tfc_host not provided");
+        core.setFailed("Invalid Input: tfc_host not provided");
     }
 
     // Check tfc_token.
     if (!tfc_token) {
-        core.setFailed("tfc_token not provided");
+        core.setFailed("Invalid Input: tfc_token not provided");
     }
 
     // Check organization.
     if (!organization) {
-        core.setFailed("organization not provided");
+        core.setFailed("Invalid Input: organization not provided");
     }
 
     // Check workspace.
     if (!workspace) {
-        core.setFailed("workspace not provided");
+        core.setFailed("Invalid Input: workspace not provided");
     }
 
     // Set a flag to ensure we have at lease one credential provided.
@@ -9045,21 +9048,21 @@ async function validate_input() {
         if (!!aws_secret_key) {
             // ...and a secret key is provided...check for valid formatting on access key...
             if (!aws_access_key.match(/(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])/)) {
-                core.setFailed("aws_access_key invalid");
+                core.setFailed("Invalid Input: aws_access_key invalid format");
             }
             // ...and valid formatting on secret key...
             if (!aws_secret_key.match(/(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])/)) {
-                core.setFailed("aws_secret_key invalid");
+                core.setFailed("Invalid Input: aws_secret_key invalid format");
             }
             // Valid formatting; set flag.
             flag = true;
         } else {
             // ...no secret key, fail.
-            core.setFailed("aws_access_key provided without an aws_secret_key");
+            core.setFailed("Invalid Input: aws_access_key provided without an aws_secret_key");
         }
     } else if (!!aws_secret_key) {
         // ...no access key, fail.
-        core.setFailed("aws_secret_key provided without an aws_access_key");
+        core.setFailed("Invalid Input: aws_secret_key provided without an aws_access_key");
     }
 
     // Check the GCP key.
@@ -9068,7 +9071,7 @@ async function validate_input() {
         // ...check if valid formatting...
         if (!gcp_svcacct_key.match(/^(?:[A-Za-z\d+/]{4})*(?:[A-Za-z\d+/]{3}=|[A-Za-z\d+/]{2}==)?$/)) {
             // ...invalid formatting, fail.
-            core.setFailed("gcp_svcacct_key set but invalid format");
+            core.setFailed("Invalid Input: gcp_svcacct_key invalid format");
         } else {
             // Valid formatting; set flag.
             flag = true;
@@ -9077,12 +9080,15 @@ async function validate_input() {
 
     // Do we have at least one credential to set?
     if (!flag) {
-        core.setFailed("no valid credential provided to be put into the workspace");
+        core.setFailed("Invalid Input: no valid credential provided to put into the workspace");
     }
+    core.debug("validate_input(): return");
 }
 
 // getWorkspaceId() - Get the workspace ID based on provided workspace name.
 async function getWorkspaceId() {
+    core.debug("getWorkspaceId(): begin");
+
     // Fetch Workspace ID
     const tfcWorkspaceEndpoint = "https://" + tfc_host + "/api/v2/organizations/" + organization + "/workspaces/" + workspace;
     const response = await axios.get(tfcWorkspaceEndpoint, httpOptions);
@@ -9100,6 +9106,8 @@ async function getWorkspaceId() {
 
 // getWorkspaceVariables() - Get the variable details for the workspace.
 async function getWorkspaceVariables() {
+    core.debug("getWorkspaceVariables(): begin");
+
     // Fetch the variables in the workspace.
     const tfcListVariablesEndpoint = "https://" + tfc_host + "/api/v2/vars/?filter[organization][name]=" + organization + "&filter[workspace][name]=" + workspace;
     const response = await axios.get(tfcListVariablesEndpoint, httpOptions);
@@ -9111,7 +9119,7 @@ async function getWorkspaceVariables() {
     }
 
     // Set null as default.
-    let variableIds = [];
+    var variableIds = [];
 
     // Iterate through variables grabbings names and IDs.
     for (let variable of response.data.data) {
@@ -9125,6 +9133,8 @@ async function getWorkspaceVariables() {
 
 // getVariableId() - Return the variable ID or null for the requested variable name.
 async function getVariableId(workspaceVariables, variableName) {
+    core.debug("getVariableId(): begin");
+
     for (let variable of workspaceVariables) {
         if (variable.name === variableName) {
             core.debug("getVariableId(): return: " + JSON.stringify(variable.id));
@@ -9137,6 +9147,8 @@ async function getVariableId(workspaceVariables, variableName) {
 
 // updateWorkspaceVariable() - Update the workspace variable provided with contents provided.
 async function updateWorkspaceVariable(varId, contents) {
+    core.debug("updateWorkspaceVariable(): begin");
+
     // Update the existing variable.
     const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + varId;
     const updateRequest = {
@@ -9151,20 +9163,24 @@ async function updateWorkspaceVariable(varId, contents) {
             type: "vars",
         },
     };
+
     // Invoking Terraform Variable Patch API
     const response = await axios.patch(tfcVariableUpdateEndpoint, updateRequest, httpOptions);
     if (response.status != 200) {
         core.debug("updateWorkspaceVariable(): response.status: " + response.status);
         core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
         core.debug("updateWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
-        core.setFailed("tfc api call to update workspace variable failed");
+        core.setFailed("tfc api call to update workspace variable failed (updateWorkspaceVariable)");
     }
 
     core.debug("updateWorkspaceVariable(): response.statusText: " + response.statusText);
+    core.debug("updateWorkspaceVariable(): return");
 }
 
 // createWorkspaceVariable() - Create the workspace variable name provided with contents provided.
 async function createWorkspaceVariable(workspaceId, varName, contents) {
+    core.debug("createWorkspaceVariable(): begin");
+    
     // Update the existing variable.
     const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars";
     const updateRequest = {
@@ -9187,22 +9203,27 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
             },
         },
     };
+
     // Invoking Terraform Variable Patch API
     const response = await axios.post(tfcVariableUpdateEndpoint, updateRequest, httpOptions);
-    if (response.status != 200) {
-        core.debug("updateWorkspaceVariable(): response.status: " + response.status);
-        core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
-        core.debug("updateWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
-        core.setFailed("tfc api call to update workspace variable failed");
+    if (response.status != 201) {
+        core.debug("createWorkspaceVariable(): response.status: " + response.status);
+        core.debug("createWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
+        core.debug("createWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
+        core.setFailed("tfc api call to create workspace variable failed (createWorkspaceVariable)");
     }
 
-    core.debug("updateWorkspaceVariable(): variable created: " + response.data.id);
+    core.debug("createWorkspaceVariable(): variable created: " + response.data.id);
+    core.debug("createWorkspaceVariable(): return");
 }
 
 // main() - Primary entrypoint for this action.
 async function main() {
+    core.debug("main(): begin");
+
     // Validate our input; will fail action if anything is wrong.
     await validate_input();
+    core.debug("main: input validated");
 
     // Get the workspace ID from the TFC API.
     var workspaceId = await getWorkspaceId();
@@ -9219,18 +9240,27 @@ async function main() {
 
     // Set the GCP credential, if present.
     if (!!gcp_svcacct_key) {
+        core.debug("main(): setting gcp workspace variable");
+
         const gcpVarName = "GOOGLE_CREDENTIALS";
+
         // Grab the variable ID for the GCP creds variable.
         const gcpVarId = await getVariableId(workspaceVariables, gcpVarName);
+        core.debug("main(): gcpVarId: " + gcpVarId);
+
         // Process accordingly depending on variable existence.
         if (!!gcpVarId) {
             // Variable exists; update it.
+            core.debug("main(): gcp workspace variable exists: updating");
             await updateWorkspaceVariable(gcpVarId, gcp_svcacct_key);
         } else {
             // Variable doesn't exist; create it.
+            core.debug("main(): gcp workspace variable does not exist: creating");
             await createWorkspaceVariable(workspaceId, gcpVarName, gcp_svcacct_key);
         }
     }
+
+    core.debug("main(): return");
 }
 
 // Run the action.
