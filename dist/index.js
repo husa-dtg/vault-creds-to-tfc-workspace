@@ -9015,15 +9015,6 @@ const httpOptions = {
     }
 }
 
-// Because Axios is dumb; create an interceptor to handle errors despite
-// handling them elsewhere throughout our code. Sheesh.
-axios.interceptors.response.use(
-    response => response,
-    error => {
-        throw error;
-    }
-);
-
 // validate_input() - Check our action inputs for existence and valid contents.
 async function validate_input() {
     core.debug("validate_input(): begin");
@@ -9130,16 +9121,16 @@ async function getWorkspaceId() {
             core.setFailed(err_message);
             throw new Error(err_message);
         }
+
+        // Return the Workspace ID.
+        core.debug("getWorkspaceId(): return: " + response.data.data.id);
+        return response.data.data.id;
     } catch (e) {
         core.debug(e.message);
         const err_message = "uncaught exception during tfc api call for workspace id";
         core.setFailed(err_message);
         throw new Error(err_message);
     }
-
-    // Return the Workspace ID.
-    core.debug("getWorkspaceId(): return: " + response.data.data.id);
-    return response.data.data.id;
 }
 
 // getWorkspaceVariables() - Get the variable details for the workspace.
@@ -9158,24 +9149,24 @@ async function getWorkspaceVariables() {
             core.setFailed(err_message);
             throw new Error(err_message);
         }
+
+        // Set null as default.
+        var variableIds = [];
+
+        // Iterate through variables grabbings names and IDs.
+        for (let variable of response.data.data) {
+            variableIds.push({ 'name': variable.attributes.key, 'id': variable.id });
+        }
+
+        // Return the Variable ID or null.
+        core.debug("getWorkspaceVariables(): return: " + JSON.stringify(variableIds));
+        return variableIds;
     } catch (e) {
         core.debug(e.message);
         const err_message = "uncaught exception during tfc api call for workspace variable details";
         core.setFailed(err_message);
         throw new Error(err_message);
     }
-
-    // Set null as default.
-    var variableIds = [];
-
-    // Iterate through variables grabbings names and IDs.
-    for (let variable of response.data.data) {
-        variableIds.push({ 'name': variable.attributes.key, 'id': variable.id });
-    }
-
-    // Return the Variable ID or null.
-    core.debug("getWorkspaceVariables(): return: " + JSON.stringify(variableIds));
-    return variableIds;
 }
 
 // getVariableId() - Return the variable ID or null for the requested variable name.
@@ -9222,16 +9213,15 @@ async function updateWorkspaceVariable(varId, contents) {
             core.setFailed(err_message);
             throw new Error(err_message);
         }
+        core.debug("updateWorkspaceVariable(): response.statusText: " + response.statusText);
+        core.debug("updateWorkspaceVariable(): return");
+        return;
     } catch (e) {
         core.debug(e.message);
         const err_message = "uncaught exception during tfc api call to update workspace variable failed (updateWorkspaceVariable)";
         core.setFailed(err_message);
         throw new Error(err_message);
     }
-
-
-    core.debug("updateWorkspaceVariable(): response.statusText: " + response.statusText);
-    core.debug("updateWorkspaceVariable(): return");
 }
 
 // createWorkspaceVariable() - Create the workspace variable name provided with contents provided.
@@ -9272,15 +9262,15 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
             core.setFailed(err_message);
             throw new Error(err_message);
         }
+        core.debug("createWorkspaceVariable(): variable created: " + response.data.data.id);
+        core.debug("createWorkspaceVariable(): return");
+        return;
     } catch (e) {
         core.debug(e.message);
         const err_message = "uncaught exception during tfc api call to create workspace variable failed (createWorkspaceVariable)";
         core.setFailed(err_message);
         throw new Error(err_message);
     }
-
-    core.debug("createWorkspaceVariable(): variable created: " + response.data.data.id);
-    core.debug("createWorkspaceVariable(): return");
 }
 
 // main() - Primary entrypoint for this action.
