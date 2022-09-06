@@ -9011,7 +9011,7 @@ const httpOptions = {
     headers: {
         "Content-Type": "application/vnd.api+json",
         Accept: "application/vnd.api+json",
-        Authorization: "Bearer " + tfc_token,
+        Authorization: `Bearer ${tfc_token}`,
     }
 }
 
@@ -9110,23 +9110,23 @@ async function getWorkspaceId() {
     core.debug("getWorkspaceId(): begin");
 
     // Fetch Workspace ID
-    const tfcWorkspaceEndpoint = "https://" + tfc_host + "/api/v2/organizations/" + organization + "/workspaces/" + workspace;
+    const tfcWorkspaceEndpoint = `https://${tfc_host}/api/v2/organizations/${organization}/workspaces/${workspace}`;
     try {
         const response = await axios.get(tfcWorkspaceEndpoint, httpOptions);
         if (response.status != 200) {
-            core.debug("getWorkspaceId(): response.status: " + response.status);
-            core.debug("getWorkspaceId(): response.headers: " + JSON.stringify(response.headers));
-            core.debug("getWorkspaceId(): response.data: " + JSON.stringify(response.data));
+            core.debug(`getWorkspaceId(): response.status: ${response.status}`);
+            core.debug(`getWorkspaceId(): response.headers: ${JSON.stringify(response.headers)}`);
+            core.debug(`getWorkspaceId(): response.data: ${JSON.stringify(response.data)}`);
             const err_message = "tfc api call for workspace id failed";
             core.setFailed(err_message);
             throw new Error(err_message);
         }
 
         // Return the Workspace ID.
-        core.debug("getWorkspaceId(): return: " + response.data.data.id);
+        core.debug(`getWorkspaceId(): return: ${response.data.data.id}`);
         return response.data.data.id;
     } catch (e) {
-        core.debug(`method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
+        core.debug(`getWorkspaceId(): method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
         const err_message = "uncaught exception during tfc api call for workspace id";
         core.setFailed(err_message);
         throw new Error(err_message);
@@ -9138,13 +9138,13 @@ async function getWorkspaceVariables() {
     core.debug("getWorkspaceVariables(): begin");
 
     // Fetch the variables in the workspace.
-    const tfcListVariablesEndpoint = "https://" + tfc_host + "/api/v2/vars/?filter[organization][name]=" + organization + "&filter[workspace][name]=" + workspace;
+    const tfcListVariablesEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspace}/vars`;
     try {
         const response = await axios.get(tfcListVariablesEndpoint, httpOptions);
         if (response.status != 200) {
-            core.debug("getWorkspaceVariables(): response.status: " + response.status);
-            core.debug("getWorkspaceVariables(): response.headers: " + JSON.stringify(response.headers));
-            core.debug("getWorkspaceVariables(): response.data: " + JSON.stringify(response.data));
+            core.debug(`getWorkspaceVariables(): response.status: ${response.status}`);
+            core.debug(`getWorkspaceVariables(): response.headers: ${JSON.stringify(response.headers)}`);
+            core.debug(`getWorkspaceVariables(): response.data: ${JSON.stringify(response.data)}`);
             const err_message = "tfc api call for workspace variable details failed";
             core.setFailed(err_message);
             throw new Error(err_message);
@@ -9159,7 +9159,7 @@ async function getWorkspaceVariables() {
         }
 
         // Return the Variable ID or null.
-        core.debug("getWorkspaceVariables(): return: " + JSON.stringify(variableIds));
+        core.debug(`getWorkspaceVariables(): return: ${JSON.stringify(variableIds)}`);
         return variableIds;
     } catch (e) {
         core.debug(`method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
@@ -9175,7 +9175,7 @@ async function getVariableId(workspaceVariables, variableName) {
 
     for (let variable of workspaceVariables) {
         if (variable.name === variableName) {
-            core.debug("getVariableId(): return: " + JSON.stringify(variable.id));
+            core.debug(`getVariableId(): return: ${JSON.stringify(variable.id)}`);
             return variable.id;
         }
     }
@@ -9188,7 +9188,7 @@ async function updateWorkspaceVariable(varId, contents) {
     core.debug("updateWorkspaceVariable(): begin");
 
     // Update the existing variable.
-    const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars/" + varId;
+    const tfcVariableUpdateEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspace}/vars/${varId}`;
     const updateRequest = {
         data: {
             id: varId,
@@ -9206,14 +9206,14 @@ async function updateWorkspaceVariable(varId, contents) {
     try {
         const response = await axios.patch(tfcVariableUpdateEndpoint, updateRequest, httpOptions);
         if (response.status != 200) {
-            core.debug("updateWorkspaceVariable(): response.status: " + response.status);
-            core.debug("updateWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
-            core.debug("updateWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
+            core.debug(`updateWorkspaceVariable(): response.status: ${response.status}`);
+            core.debug(`updateWorkspaceVariable(): response.headers: ${JSON.stringify(response.headers)}`);
+            core.debug(`updateWorkspaceVariable(): response.data: ${JSON.stringify(response.data)}`);
             const err_message = "tfc api call to update workspace variable failed (updateWorkspaceVariable)";
             core.setFailed(err_message);
             throw new Error(err_message);
         }
-        core.debug("updateWorkspaceVariable(): response.statusText: " + response.statusText);
+        core.debug(`updateWorkspaceVariable(): response.statusText: ${response.statusText}`);
         core.debug("updateWorkspaceVariable(): return");
         return;
     } catch (e) {
@@ -9229,7 +9229,7 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
     core.debug("createWorkspaceVariable(): begin");
 
     // Update the existing variable.
-    const tfcVariableUpdateEndpoint = "https://" + tfc_host + "/api/v2/vars";
+    const tfcVariableUpdateEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspace}/vars`;
     const updateRequest = {
         data: {
             type: "vars",
@@ -9255,14 +9255,14 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
     try {
         const response = await axios.post(tfcVariableUpdateEndpoint, updateRequest, httpOptions);
         if (response.status != 201) {
-            core.debug("createWorkspaceVariable(): response.status: " + response.status);
-            core.debug("createWorkspaceVariable(): response.headers: " + JSON.stringify(response.headers));
-            core.debug("createWorkspaceVariable(): response.data: " + JSON.stringify(response.data));
+            core.debug(`createWorkspaceVariable(): response.status: ${response.status}`);
+            core.debug(`createWorkspaceVariable(): response.headers: ${JSON.stringify(response.headers)}`);
+            core.debug(`createWorkspaceVariable(): response.data: ${JSON.stringify(response.data)}`);
             const err_message = "tfc api call to create workspace variable failed (createWorkspaceVariable)";
             core.setFailed(err_message);
             throw new Error(err_message);
         }
-        core.debug("createWorkspaceVariable(): variable created: " + response.data.data.id);
+        core.debug(`createWorkspaceVariable(): variable created: ${response.data.data.id}`);
         core.debug("createWorkspaceVariable(): return");
         return;
     } catch (e) {
@@ -9283,11 +9283,11 @@ async function main() {
 
     // Get the workspace ID from the TFC API.
     var workspaceId = await getWorkspaceId();
-    core.debug("main(): workspaceId: " + workspaceId);
+    core.debug(`main(): workspaceId: ${workspaceId}`);
 
     // Get the details for the variables in the workspace.
     var workspaceVariables = await getWorkspaceVariables();
-    core.debug("main(): workspaceVariables: " + JSON.stringify(workspaceVariables));
+    core.debug(`main(): workspaceVariables: ${JSON.stringify(workspaceVariables)}`);
 
     // Set the AWS credential, if present.
     if (!!aws_access_key && !!aws_secret_key) {
@@ -9297,7 +9297,7 @@ async function main() {
 
         // Grab the variable ID for the GCP credentials variable.
         const awsAccessVarId = await getVariableId(workspaceVariables, awsAccessVarName);
-        core.debug("main(): awsAccessVarId: " + awsAccessVarId);
+        core.debug(`main(): awsAccessVarId: ${awsAccessVarId}`);
 
         // Process accordingly depending on variable existence.
         if (!!awsAccessVarId) {
@@ -9314,7 +9314,7 @@ async function main() {
 
         // Grab the variable ID for the GCP credentials variable.
         const awsSecretVarId = await getVariableId(workspaceVariables, awsSecretVarName);
-        core.debug("main(): awsSecretVarId: " + awsSecretVarId);
+        core.debug(`main(): awsSecretVarId: ${awsSecretVarId}`);
 
         // Process accordingly depending on variable existence.
         if (!!awsSecretVarId) {
@@ -9336,7 +9336,7 @@ async function main() {
 
         // Grab the variable ID for the GCP creds variable.
         const gcpVarId = await getVariableId(workspaceVariables, gcpVarName);
-        core.debug("main(): gcpVarId: " + gcpVarId);
+        core.debug(`main(): gcpVarId: ${gcpVarId}`);
 
         // Process accordingly depending on variable existence.
         if (!!gcpVarId) {
