@@ -9138,7 +9138,7 @@ async function getWorkspaceVariables() {
     core.debug("getWorkspaceVariables(): begin");
 
     // Fetch the variables in the workspace.
-    const tfcListVariablesEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspace}/vars`;
+    const tfcListVariablesEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspaceId}/vars`;
     try {
         const response = await axios.get(tfcListVariablesEndpoint, httpOptions);
         if (response.status != 200) {
@@ -9188,7 +9188,7 @@ async function updateWorkspaceVariable(varId, contents) {
     core.debug("updateWorkspaceVariable(): begin");
 
     // Update the existing variable.
-    const tfcVariableUpdateEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspace}/vars/${varId}`;
+    const tfcVariableUpdateEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspaceId}/vars/${varId}`;
     const updateRequest = {
         data: {
             id: varId,
@@ -9229,7 +9229,7 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
     core.debug("createWorkspaceVariable(): begin");
 
     // Update the existing variable.
-    const tfcVariableUpdateEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspace}/vars`;
+    const tfcVariableUpdateEndpoint = `https://${tfc_host}/api/v2/workspaces/${workspaceId}/vars`;
     const updateRequest = {
         data: {
             type: "vars",
