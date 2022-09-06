@@ -9006,6 +9006,9 @@ const aws_access_key = core.getInput('aws_access_key');
 const aws_secret_key = core.getInput('aws_secret_key');
 const gcp_svcacct_key = core.getInput('gcp_svcacct_key');
 
+// Create global for workspace ID.
+var workspaceId = "";
+
 // Global header definitions for axios requests.
 const httpOptions = {
     headers: {
@@ -9282,7 +9285,7 @@ async function main() {
     core.debug("main: input validated");
 
     // Get the workspace ID from the TFC API.
-    var workspaceId = await getWorkspaceId();
+    workspaceId = await getWorkspaceId();
     core.debug(`main(): workspaceId: ${workspaceId}`);
 
     // Get the details for the variables in the workspace.
