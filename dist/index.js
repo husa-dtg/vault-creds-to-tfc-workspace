@@ -9126,7 +9126,7 @@ async function getWorkspaceId() {
         core.debug("getWorkspaceId(): return: " + response.data.data.id);
         return response.data.data.id;
     } catch (e) {
-        core.debug(e.message);
+        core.debug(`method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
         const err_message = "uncaught exception during tfc api call for workspace id";
         core.setFailed(err_message);
         throw new Error(err_message);
@@ -9162,7 +9162,7 @@ async function getWorkspaceVariables() {
         core.debug("getWorkspaceVariables(): return: " + JSON.stringify(variableIds));
         return variableIds;
     } catch (e) {
-        core.debug(e.message);
+        core.debug(`method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
         const err_message = "uncaught exception during tfc api call for workspace variable details";
         core.setFailed(err_message);
         throw new Error(err_message);
@@ -9217,7 +9217,7 @@ async function updateWorkspaceVariable(varId, contents) {
         core.debug("updateWorkspaceVariable(): return");
         return;
     } catch (e) {
-        core.debug(e.message);
+        core.debug(`method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
         const err_message = "uncaught exception during tfc api call to update workspace variable failed (updateWorkspaceVariable)";
         core.setFailed(err_message);
         throw new Error(err_message);
@@ -9266,7 +9266,7 @@ async function createWorkspaceVariable(workspaceId, varName, contents) {
         core.debug("createWorkspaceVariable(): return");
         return;
     } catch (e) {
-        core.debug(e.message);
+        core.debug(`method: ${e.request.method}, path: ${e.request.path}, response: ${e.response.status} - ${e.response.statusText}`);
         const err_message = "uncaught exception during tfc api call to create workspace variable failed (createWorkspaceVariable)";
         core.setFailed(err_message);
         throw new Error(err_message);
@@ -9357,7 +9357,7 @@ async function main() {
 try {
     main();
 } catch (e) {
-    core.error(`error: ${e.message}`);
+    core.error(`error: ${e}`);
 }
 })();
 
