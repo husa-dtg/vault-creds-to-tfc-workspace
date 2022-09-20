@@ -9005,6 +9005,7 @@ const workspace = core.getInput('workspace');
 const aws_access_key = core.getInput('aws_access_key');
 const aws_secret_key = core.getInput('aws_secret_key');
 const gcp_svcacct_key = core.getInput('gcp_svcacct_key');
+const tfe_token = core.getInput('tfe_token');
 
 // Create global for workspace ID.
 var workspaceId = "";
@@ -9099,6 +9100,20 @@ async function validate_input() {
         }
     }
 
+    // Check the TFE token.
+    // If a token is provided...
+    if (!!tfe_token) {
+        // ...check if valid formatting...
+        if (!tfe_token.match(/^[A-Za-z0-9]+\.atlasv[1]\.[A-Za-z0-9]+$/)) {
+            // ...invalid formatting, fail.
+            const err_message = "invalid input: tfe_token invalid format";
+            core.setFailed(err_message);
+            throw new Error(err_message);
+        } else {
+            // Valid formatting; set flag.
+            flag = true;
+        }
+    }
     // Do we have at least one credential to set?
     if (!flag) {
         const err_message = "invalid input: no valid credential provided to put into the workspace";
@@ -9350,6 +9365,28 @@ async function main() {
             // Variable doesn't exist; create it.
             core.debug("main(): gcp workspace variable does not exist: creating");
             await createWorkspaceVariable(workspaceId, gcpVarName, base64decode(gcp_svcacct_key).replace(/\r?\n|\r/g, ""));
+        }
+    }
+
+    // Set the TFE token, if present.
+    if (!!tfe_token) {
+        core.debug("main(): setting tfe workspace variable");
+
+        const tfeVarName = "TFE_TOKEN";
+
+        // Grab the variable ID for the TFE token variable.
+        const tfeVarId = await getVariableId(workspaceVariables, tfeVarName);
+        core.debug(`main(): tfeVarId: ${tfeVarId}`);
+
+        // Process accordingly depending on variable existence.
+        if (!!tfeVarId) {
+            // Variable exists; update it.
+            core.debug("main(): tfe workspace variable exists: updating");
+            await updateWorkspaceVariable(tfeVarId, tfe_token);
+        } else {
+            // Variable doesn't exist; create it.
+            core.debug("main(): tfe workspace variable does not exist: creating");
+            await createWorkspaceVariable(workspaceId, tfeVarName, tfe_token);
         }
     }
 
