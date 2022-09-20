@@ -1,0 +1,33 @@
+name: test-latest-commit
+
+on:
+  push:
+    branches:
+      - '*'
+
+concurrency: vault-creds-to-tfc-workspace
+
+jobs:
+  test-latest-commit:
+    name: Test Latest Commit
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+
+      - name: Setup workspace variable(s).
+        uses: ./
+        with:
+          tfc_token: ${{ secrets.TFC_TOKEN }}
+          organization: vault-creds-to-tfc-workspace
+          workspace: test-workspace
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          gcp_svcacct_key: ${{ secrets.GCP_SVCACCT_KEY }}
+          # tfe_token: ${{ secrets.TFC_TOKEN }}
