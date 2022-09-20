@@ -9,7 +9,11 @@ To publish HashiCorp Vault credentials to a Terraform Cloud (TFC) or Terraform E
 This action will take redacted secrets from your workflow and publish then to sensitive redacted
 environment variables in the TFC workspace.
 
-Supports Amazon Web Services (AWS) access keys and Google Cloud Platform (GCP) service account keys at this time.
+Supports the following credentials at this time:
+
+* Amazon Web Services (AWS) access keys
+* Google Cloud Platform (GCP) service account keys
+* Terraform Cloud tokens for use with TFE provider
 
 **NOTE:** *This action will never publish input values to debug; this can make debugging difficult,
 but we must ensure that no secret leakage occurs when debugging is enabled.*
@@ -39,6 +43,9 @@ The action has the following inputs, with the provision that at least one creden
 * `gcp_svcacct_key` - GCP service account key from Vault (assumes Vault standard formatting).
   * **Required**: NO
   * **Default**: Empty string.
+* `tfe_token` - The token for the TFE provider to use (assumes TFE/TFC standard formatting).
+  * **Required**: NO
+  * **Default**: Contents of `TFE_TOKEN` environment variable; else empty string.
 
 ## Use
 
@@ -55,4 +62,5 @@ Add a step using this action to your workflow after you've retrieved your creden
       aws_access_key: ${{ steps.STEP_NAME.outputs.AWS_ACCESS_KEY_NAME }}
       aws_secret_key: ${{ steps.STEP_NAME.outputs.AWS_SECRET_KEY_NAME }}
       gcp_svcacct_key: ${{ steps.STEP_NAME.outputs.GCP_CREDS_NAME }}
+      tfe_token: ${{ steps.STEP_NAME.outputs.TFE_TOKEN_NAME }}
 ```

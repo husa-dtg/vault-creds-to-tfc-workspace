@@ -33,6 +33,10 @@ inputs:
     description: GCP service account key from Vault (assumes Vault standard formatting).
     required: false
     default: ""
+  tfe_token:
+    description: The token for the TFE provider to use (assumes TFE/TFC standard formatting).
+    required: false
+    default: ""
 runs:
   using: 'node16'
   main: 'dist/index.js'
