@@ -37,6 +37,14 @@ inputs:
     description: The token for the TFE provider to use (assumes TFE/TFC standard formatting).
     required: false
     default: ""
+  tfc_service_account:
+    description: The token for the TFE provider to use (assumes TFE/TFC standard formatting).
+    required: false
+    default: ""
+  tfc_workload_identity:
+    description: The token for the TFE provider to use (assumes TFE/TFC standard formatting).
+    required: false
+    default: ""
 runs:
   using: 'node16'
   main: 'dist/index.js'
