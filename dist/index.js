@@ -9006,6 +9006,8 @@ const aws_access_key = core.getInput('aws_access_key');
 const aws_secret_key = core.getInput('aws_secret_key');
 const gcp_svcacct_key = core.getInput('gcp_svcacct_key');
 const tfe_token = core.getInput('tfe_token');
+const tfc_service_account = core.getInput('tfc_service_account');
+const tfc_workload_identity = core.getInput('tfc_workload_identity');
 
 // Create global for workspace ID.
 var workspaceId = "";
