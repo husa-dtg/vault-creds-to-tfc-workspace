@@ -25,11 +25,11 @@ jobs:
         uses: ./
         with:
           tfc_token: ${{ secrets.TFC_TOKEN }}
-          organization: applhome
-          workspace: gcpinfra-secret-poc-p-1
+          organization: vault-creds-to-tfc-workspace
+          workspace: test-workspace
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
           gcp_svcacct_key: ${{ secrets.GCP_SVCACCT_KEY }}
           tfe_token: ${{ secrets.TFC_TOKEN }}
-          tfc_workload_identity: some-identity
-          tfc_service_account: some-name
+          tfc_workload_identity: "some-identity"
+          tfc_service_account: "some-name"
