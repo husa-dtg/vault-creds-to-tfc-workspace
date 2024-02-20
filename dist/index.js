@@ -9390,6 +9390,50 @@ async function main() {
         }
     }
 
+    // Set the tfc_service_account, if present.
+    if (!!tfc_service_account) {
+      core.debug("main(): setting tfe workspace variable");
+
+      const tfeVarName = "TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL";
+
+      // Grab the variable ID for the TFE token variable.
+      const tfeVarId = await getVariableId(workspaceVariables, tfeVarName);
+      core.debug(`main(): tfeVarId: ${tfeVarId}`);
+
+      // Process accordingly depending on variable existence.
+      if (!!tfeVarId) {
+          // Variable exists; update it.
+          core.debug("main(): tfe workspace variable exists: updating");
+          await updateWorkspaceVariable(tfeVarId, tfe_token);
+      } else {
+          // Variable doesn't exist; create it.
+          core.debug("main(): tfe workspace variable does not exist: creating");
+          await createWorkspaceVariable(workspaceId, tfeVarName, tfe_token);
+      }
+  }
+
+  // Set the tfc_workload_identity, if present.
+  if (!!tfc_workload_identity) {
+      core.debug("main(): setting tfe workspace variable");
+
+      const tfeVarName = "TFC_GCP_WORKLOAD_PROVIDER_NAME";
+
+      // Grab the variable ID for the TFE token variable.
+      const tfeVarId = await getVariableId(workspaceVariables, tfeVarName);
+      core.debug(`main(): tfeVarId: ${tfeVarId}`);
+
+      // Process accordingly depending on variable existence.
+      if (!!tfeVarId) {
+          // Variable exists; update it.
+          core.debug("main(): tfe workspace variable exists: updating");
+          await updateWorkspaceVariable(tfeVarId, tfe_token);
+      } else {
+          // Variable doesn't exist; create it.
+          core.debug("main(): tfe workspace variable does not exist: creating");
+          await createWorkspaceVariable(workspaceId, tfeVarName, tfe_token);
+      }
+  }
+
     core.debug("main(): return");
 }
 
