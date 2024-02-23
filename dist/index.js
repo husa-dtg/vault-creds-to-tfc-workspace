@@ -9406,7 +9406,7 @@ async function main() {
       if (!!tfeVarId) {
           // Variable exists; update it.
           core.debug("main(): tfe workspace variable exists: updating");
-          await updateWorkspaceVariable(tfeVarId, tfe_token);
+          await updateWorkspaceVariable(tfeVarId, tfc_service_account);
       } else {
           // Variable doesn't exist; create it.
           core.debug("main(): tfe workspace variable does not exist: creating");
@@ -9428,7 +9428,7 @@ async function main() {
       if (!!tfeVarId) {
           // Variable exists; update it.
           core.debug("main(): tfe workspace variable exists: updating");
-          await updateWorkspaceVariable(tfeVarId, tfe_token);
+          await updateWorkspaceVariable(tfeVarId, tfc_workload_identity);
       } else {
           // Variable doesn't exist; create it.
           core.debug("main(): tfe workspace variable does not exist: creating");
