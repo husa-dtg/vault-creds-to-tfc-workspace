@@ -9410,7 +9410,7 @@ async function main() {
       } else {
           // Variable doesn't exist; create it.
           core.debug("main(): tfe workspace variable does not exist: creating");
-          await createWorkspaceVariable(workspaceId, tfeVarName, tfe_token);
+          await createWorkspaceVariable(workspaceId, tfeVarName, tfc_service_account);
       }
   }
 
@@ -9432,7 +9432,7 @@ async function main() {
       } else {
           // Variable doesn't exist; create it.
           core.debug("main(): tfe workspace variable does not exist: creating");
-          await createWorkspaceVariable(workspaceId, tfeVarName, tfe_token);
+          await createWorkspaceVariable(workspaceId, tfeVarName, tfc_workload_identity);
       }
   }
 
