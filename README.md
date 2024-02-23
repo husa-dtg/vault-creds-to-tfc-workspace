@@ -46,6 +46,13 @@ The action has the following inputs, with the provision that at least one creden
 * `tfe_token` - The token for the TFE provider to use (assumes TFE/TFC standard formatting).
   * **Required**: NO
   * **Default**: Contents of `TFE_TOKEN` environment variable; else empty string.
+* `tfc_workload_identity` - The workload identity provider name for the App IAC GCP Projects.
+  * **Required**: NO
+  * **Default**: Contents of `TFC_GCP_WORKLOAD_PROVIDER_NAME` environment variable; else empty string.
+ * `tfc_service_account` - The app iac service account name to authenticate to workload identity provider.
+  * **Required**: NO
+  * **Default**: Contents of `TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL` environment variable; else empty string.
+
 
 ## Use
 
