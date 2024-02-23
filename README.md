@@ -13,6 +13,7 @@ Supports the following credentials at this time:
 
 * Amazon Web Services (AWS) access keys
 * Google Cloud Platform (GCP) service account keys
+* Google Cloud Platform (GCP) Workload Identiy Pool and Service Account Email
 * Terraform Cloud tokens for use with TFE provider
 
 **NOTE:** *This action will never publish input values to debug; this can make debugging difficult,
